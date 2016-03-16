@@ -59,57 +59,45 @@ public class RCTCamera {
         return cameraInfo.previewHeight;
     }
 
-    public Camera.Size getBestPreviewSize(int type, int width, int height)
-    {
+    public Camera.Size getBestPreviewSize(int type) {
         Camera camera = _cameras.get(type);
-        Camera.Size result = null;
         if(camera == null) {
             return null;
         }
         Camera.Parameters params = camera.getParameters();
-        for (Camera.Size size : params.getSupportedPreviewSizes()) {
-            if (size.width <= width && size.height <= height) {
-                if (result == null) {
-                    result = size;
-                } else {
-                    int resultArea = result.width * result.height;
-                    int newArea = size.width * size.height;
-
-                    if (newArea > resultArea) {
-                        result = size;
-                    }
-                }
-            }
-        }
-        return result;
+        return getDesiredCameraSize(params.getSupportedPreviewSizes());
 
     }
 
-    public Camera.Size getBestPictureSize(int type, int width, int height)
-    {
+    public Camera.Size getBestPictureSize(int type) {
         Camera camera = _cameras.get(type);
-        Camera.Size result = null;
         if(camera == null) {
             return null;
         }
         Camera.Parameters params = camera.getParameters();
-        for (Camera.Size size : params.getSupportedPictureSizes()) {
-            if (size.width <= width && size.height <= height) {
-                if (result == null) {
-                    result = size;
-                } else {
-                    int resultArea = result.width * result.height;
-                    int newArea = size.width * size.height;
-
-                    if (newArea > resultArea) {
-                        result = size;
-                    }
-                }
-            }
-        }
-        return result;
+        return getDesiredCameraSize(params.getSupportedPictureSizes());
 
     }
+
+    private Camera.Size getDesiredCameraSize(List<Camera.Size> sizes) {
+        Camera.Size desiredSize = null;
+        long usedMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+        long availableMemory = Runtime.getRuntime().maxMemory() - usedMemory;
+        // search for desired size i.e. 4:3 ratio
+        for (Camera.Size currentSize : sizes) {
+            int area = currentSize.width * currentSize.height;
+            long neededMemory = area * 4 * 4; // area * 4 Bytes/pixel * 4 needed copies of the bitmap (for safety :) )
+            boolean isDesiredRatio = (currentSize.width / 4) == (currentSize.height / 3);
+            boolean isBetterQuality = (desiredSize == null || currentSize.width > desiredSize.width);
+            boolean isSafe = neededMemory < availableMemory;
+            if (isDesiredRatio && isBetterQuality && isSafe) {
+                desiredSize = currentSize;
+            }
+        }
+        return desiredSize != null ? desiredSize : sizes.get(0);
+
+    }
+
 
     public void setOrientation(int orientation) {
         if (_orientation == orientation) {
@@ -203,11 +191,16 @@ public class RCTCamera {
 
         // set preview size
         // defaults to highest resolution available
-        Camera.Size optimalPreviewSize = getBestPreviewSize(type, Integer.MAX_VALUE, Integer.MAX_VALUE);
+        Camera.Size optimalPreviewSize = getBestPreviewSize(type);
         int width = optimalPreviewSize.width;
         int height = optimalPreviewSize.height;
 
         parameters.setPreviewSize(width, height);
+
+        Camera.Size optimalPictureSize = getBestPictureSize(type);
+
+        parameters.setPictureSize(optimalPictureSize.width, optimalPictureSize.height);
+
         try {
             camera.setParameters(parameters);
         } catch (Exception e) {

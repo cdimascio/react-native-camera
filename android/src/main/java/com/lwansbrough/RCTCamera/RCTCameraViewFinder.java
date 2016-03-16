@@ -98,7 +98,7 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                 }
                 // set picture size
                 // defaults to max available size
-                Camera.Size optimalPictureSize = RCTCamera.getInstance().getBestPictureSize(_cameraType, Integer.MAX_VALUE, Integer.MAX_VALUE);
+                Camera.Size optimalPictureSize = RCTCamera.getInstance().getBestPictureSize(_cameraType);
                 parameters.setPictureSize(optimalPictureSize.width, optimalPictureSize.height);
 
                 _camera.setParameters(parameters);

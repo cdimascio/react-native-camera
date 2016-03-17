@@ -6,6 +6,7 @@ package com.lwansbrough.RCTCamera;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Environment;
@@ -169,6 +170,14 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
                     case RCT_CAMERA_CAPTURE_TARGET_CAMERA_ROLL:
                         BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
                         Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length, bitmapOptions);
+
+                        if (bitmap.getWidth() > bitmap.getHeight()) {
+                            // TODO Hack to ensure image maintains portrait orientation - fix me properly
+                            Matrix matrix = new Matrix();
+                            matrix.postRotate(90);
+                            bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+                        }
+
                         String url = MediaStore.Images.Media.insertImage(
                                 _reactContext.getContentResolver(),
                                 bitmap, options.getString("title"),

@@ -175,7 +175,9 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
                             // TODO Hack to ensure image maintains portrait orientation - fix me properly
                             Matrix matrix = new Matrix();
                             matrix.postRotate(90);
-                            bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+                            bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getHeight(), bitmap.getHeight(), matrix, true);
+                        } else {
+                            bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getWidth());
                         }
 
                         String url = MediaStore.Images.Media.insertImage(

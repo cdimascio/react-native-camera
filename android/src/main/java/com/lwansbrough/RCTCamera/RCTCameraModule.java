@@ -4,11 +4,15 @@
 
 package com.lwansbrough.RCTCamera;
 
+import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Base64;
@@ -184,7 +188,9 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
                                 _reactContext.getContentResolver(),
                                 bitmap, options.getString("title"),
                                 options.getString("description"));
-                        promise.resolve(url);
+
+                        Uri newUri = getRealPathFromUri(_reactContext, Uri.parse(url));
+                        promise.resolve(newUri.toString());
                         break;
                     case RCT_CAMERA_CAPTURE_TARGET_DISK:
                         File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
@@ -231,6 +237,21 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void stopCapture(final ReadableMap options, final Promise promise) {
         // TODO: implement video capture
+    }
+
+    private Uri getRealPathFromUri(Context context, Uri contentUri) {
+        Cursor cursor = null;
+        try {
+            String[] proj = { MediaStore.Images.Media.DATA };
+            cursor = context.getContentResolver().query(contentUri, proj, null, null, null);
+            int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+            cursor.moveToFirst();
+            return Uri.fromFile(new File(cursor.getString(column_index)));
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
     }
 
     private File getOutputMediaFile(int type) {

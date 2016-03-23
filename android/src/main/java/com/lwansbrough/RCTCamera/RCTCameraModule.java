@@ -54,6 +54,8 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
     public static final int RCT_CAMERA_TORCH_MODE_AUTO = 2;
     public static final int MEDIA_TYPE_IMAGE = 1;
     public static final int MEDIA_TYPE_VIDEO = 2;
+    public static final int RCT_PREFERRED_ASPECT_DEFAULT = 0;
+    public static final int RCT_PREFERRED_ASPECT_43 = 1;
 
     private final ReactApplicationContext _reactContext;
 
@@ -73,13 +75,25 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
         return Collections.unmodifiableMap(new HashMap<String, Object>() {
             {
                 put("Aspect", getAspectConstants());
+                put("PreferredAspect", getPreferredAspectConstants());
                 put("Type", getTypeConstants());
+                put("CaptureQuality", getCaptureQualityConstants());
                 put("CaptureMode", getCaptureModeConstants());
                 put("CaptureTarget", getCaptureTargetConstants());
                 put("Orientation", getOrientationConstants());
                 put("FlashMode", getFlashModeConstants());
                 put("TorchMode", getTorchModeConstants());
             }
+
+            private Map<String, Object> getPreferredAspectConstants() {
+                return Collections.unmodifiableMap(new HashMap<String, Object>() {
+                    {
+                        put("default", RCT_PREFERRED_ASPECT_DEFAULT);
+                        put("fourByThree", RCT_PREFERRED_ASPECT_43);
+                    }
+                });
+            }
+
 
             private Map<String, Object> getAspectConstants() {
                 return Collections.unmodifiableMap(new HashMap<String, Object>() {
@@ -96,6 +110,16 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
                     {
                         put("front", RCT_CAMERA_TYPE_FRONT);
                         put("back", RCT_CAMERA_TYPE_BACK);
+                    }
+                });
+            }
+
+            private Map<String, Object> getCaptureQualityConstants() {
+                return Collections.unmodifiableMap(new HashMap<String, Object>() {
+                    {
+                        put("low", "low");
+                        put("medium", "medium");
+                        put("high", "high");
                     }
                 });
             }
@@ -161,6 +185,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
             promise.reject("No camera found.");
             return;
         }
+        RCTCamera.getInstance().setCaptureQuality(options.getInt("type"), options.getString("quality"));
         camera.takePicture(null, null, new Camera.PictureCallback() {
             @Override
             public void onPictureTaken(byte[] data, Camera camera) {

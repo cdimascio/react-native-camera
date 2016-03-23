@@ -17,6 +17,10 @@ function convertStringProps(props) {
     newProps.aspect = Camera.constants.Aspect[props.aspect];
   }
 
+  if (typeof props.preferredAspect === 'string') {
+    newProps.preferredAspect = Camera.constants.PreferredAspect[props.preferredAspect];
+  }
+
   if (typeof props.flashMode === 'string') {
     newProps.flashMode = Camera.constants.FlashMode[props.flashMode];
   }
@@ -33,6 +37,10 @@ function convertStringProps(props) {
     newProps.type = Camera.constants.Type[props.type];
   }
 
+  if (typeof props.captureQuality === 'string') {
+    newProps.captureQuality = Camera.constants.CaptureQuality[props.captureQuality];
+  }
+
   return newProps;
 }
 
@@ -40,10 +48,12 @@ export default class Camera extends Component {
 
   static constants = {
     Aspect: CameraManager.Aspect,
+    PreferredAspect: CameraManager.PreferredAspect,
     BarCodeType: CameraManager.BarCodeType,
     Type: CameraManager.Type,
     CaptureMode: CameraManager.CaptureMode,
     CaptureTarget: CameraManager.CaptureTarget,
+    CaptureQuality: CameraManager.CaptureQuality,
     Orientation: CameraManager.Orientation,
     FlashMode: CameraManager.FlashMode,
     TorchMode: CameraManager.TorchMode
@@ -55,8 +65,16 @@ export default class Camera extends Component {
       PropTypes.string,
       PropTypes.number
     ]),
+    preferredAspect: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number
+    ]),
     captureAudio: PropTypes.bool,
     captureMode: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number
+    ]),
+    captureQuality: PropTypes.oneOfType([
       PropTypes.string,
       PropTypes.number
     ]),
@@ -89,11 +107,13 @@ export default class Camera extends Component {
 
   static defaultProps = {
     aspect: CameraManager.Aspect.fill,
+    preferredAspect: CameraManager.PreferredAspect.default,
     type: CameraManager.Type.back,
     orientation: CameraManager.Orientation.auto,
     captureAudio: true,
     captureMode: CameraManager.CaptureMode.still,
     captureTarget: CameraManager.CaptureTarget.cameraRoll,
+    captureQuality: CameraManager.CaptureQuality.high,
     defaultOnFocusComponent: true,
     flashMode: CameraManager.FlashMode.off,
     torchMode: CameraManager.TorchMode.off
@@ -143,6 +163,7 @@ export default class Camera extends Component {
       audio: props.captureAudio,
       mode: props.captureMode,
       target: props.captureTarget,
+      quality: props.captureQuality,
       type: props.type,
       title: '',
       description: '',

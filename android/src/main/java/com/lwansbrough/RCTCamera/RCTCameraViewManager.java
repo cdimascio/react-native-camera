@@ -22,6 +22,11 @@ public class RCTCameraViewManager extends ViewGroupManager<RCTCameraView> {
         view.setAspect(aspect);
     }
 
+    @ReactProp(name = "preferredAspect")
+    public void setPreferredAspect(RCTCameraView view, int preferredAspect) {
+        view.setPreferredAspect(preferredAspect);
+    }
+
     @ReactProp(name = "captureMode")
     public void setCaptureMode(RCTCameraView view, int captureMode) {
         // TODO - implement video mode
@@ -35,6 +40,11 @@ public class RCTCameraViewManager extends ViewGroupManager<RCTCameraView> {
     @ReactProp(name = "type")
     public void setType(RCTCameraView view, int type) {
         view.setCameraType(type);
+    }
+
+    @ReactProp(name = "captureQuality")
+    public void setCaptureQuality(RCTCameraView view, String captureQuality) {
+        view.setCaptureQuality(captureQuality);
     }
 
     @ReactProp(name = "torchMode")

@@ -18,6 +18,7 @@ public class RCTCamera {
     private final Map<Number, Camera> _cameras;
     private int _orientation = -1;
     private int _actualDeviceOrientation = 0;
+    private int _preferredAspect = RCTCameraModule.RCT_PREFERRED_ASPECT_DEFAULT;
 
     public static RCTCamera getInstance() {
         return ourInstance;
@@ -59,27 +60,110 @@ public class RCTCamera {
         return cameraInfo.previewHeight;
     }
 
-    public Camera.Size getBestPreviewSize(int type) {
+    public Camera.Size getBestPreviewSize(int type, int width, int height)
+    {
+        Camera camera = _cameras.get(type);
+        Camera.Size result = null;
+        if(camera == null) {
+            return null;
+        }
+
+        if (_preferredAspect == RCTCameraModule.RCT_PREFERRED_ASPECT_43) {
+            return getBest43PreviewSize(type);
+        }
+
+        Camera.Parameters params = camera.getParameters();
+        for (Camera.Size size : params.getSupportedPreviewSizes()) {
+            if (size.width <= width && size.height <= height) {
+                if (result == null) {
+                    result = size;
+                } else {
+                    int resultArea = result.width * result.height;
+                    int newArea = size.width * size.height;
+
+                    if (newArea > resultArea) {
+                        result = size;
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    public Camera.Size getBestPictureSize(int type, int width, int height)
+    {
+        Camera camera = _cameras.get(type);
+        Camera.Size result = null;
+        if(camera == null) {
+            return null;
+        }
+
+        if (_preferredAspect == RCTCameraModule.RCT_PREFERRED_ASPECT_43) {
+            return getBest43PictureSize(type);
+        }
+
+        Camera.Parameters params = camera.getParameters();
+        for (Camera.Size size : params.getSupportedPictureSizes()) {
+            if (size.width <= width && size.height <= height) {
+                if (result == null) {
+                    result = size;
+                } else {
+                    int resultArea = result.width * result.height;
+                    int newArea = size.width * size.height;
+
+                    if (newArea > resultArea) {
+                        result = size;
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    public Camera.Size getSmallestPictureSize(int type)
+    {
+        Camera camera = _cameras.get(type);
+        Camera.Size result = null;
+        if(camera == null) {
+            return null;
+        }
+        Camera.Parameters params = camera.getParameters();
+        for (Camera.Size size : params.getSupportedPictureSizes()) {
+            if (result == null) {
+                result = size;
+            } else {
+                int resultArea = result.width * result.height;
+                int newArea = size.width * size.height;
+
+                if (newArea < resultArea) {
+                    result = size;
+                }
+            }
+        }
+        return result;
+    }
+
+    private Camera.Size getBest43PreviewSize(int type) {
         Camera camera = _cameras.get(type);
         if(camera == null) {
             return null;
         }
         Camera.Parameters params = camera.getParameters();
-        return getDesiredCameraSize(params.getSupportedPreviewSizes());
+        return getBest43CameraSize(params.getSupportedPreviewSizes());
 
     }
 
-    public Camera.Size getBestPictureSize(int type) {
+    private Camera.Size getBest43PictureSize(int type) {
         Camera camera = _cameras.get(type);
         if(camera == null) {
             return null;
         }
         Camera.Parameters params = camera.getParameters();
-        return getDesiredCameraSize(params.getSupportedPictureSizes());
+        return getBest43CameraSize(params.getSupportedPictureSizes());
 
     }
 
-    private Camera.Size getDesiredCameraSize(List<Camera.Size> sizes) {
+    private Camera.Size getBest43CameraSize(List<Camera.Size> sizes) {
         Camera.Size desiredSize = null;
         long usedMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
         long availableMemory = Runtime.getRuntime().maxMemory() - usedMemory;
@@ -112,6 +196,39 @@ public class RCTCamera {
         _actualDeviceOrientation = actualDeviceOrientation;
         adjustPreviewLayout(RCTCameraModule.RCT_CAMERA_TYPE_FRONT);
         adjustPreviewLayout(RCTCameraModule.RCT_CAMERA_TYPE_BACK);
+    }
+
+    public void setPreferredAspect(int cameraType, int preferredAspect) {
+        _preferredAspect = preferredAspect;
+    }
+
+    public void setCaptureQuality(int cameraType, String captureQuality) {
+        Camera camera = _cameras.get(cameraType);
+        if (null == camera) {
+            return;
+        }
+
+        Camera.Parameters parameters = camera.getParameters();
+        Camera.Size pictureSize = null;
+        switch (captureQuality) {
+            case "low":
+                // TODO support 4:3
+                pictureSize = getSmallestPictureSize(cameraType); // select the lowest res
+                break;
+            case "medium":
+                // TODO support 4:3
+                List<Camera.Size> sizes = parameters.getSupportedPictureSizes();
+                pictureSize = sizes.get(sizes.size() / 2);
+                break;
+            case "high":
+                pictureSize = getBestPictureSize(cameraType, Integer.MAX_VALUE, Integer.MAX_VALUE); // select the highest res
+                break;
+        }
+
+        if (pictureSize != null) {
+            parameters.setPictureSize(pictureSize.width, pictureSize.height);
+            camera.setParameters(parameters);
+        }
     }
 
     public void setTorchMode(int cameraType, int torchMode) {
@@ -191,16 +308,11 @@ public class RCTCamera {
 
         // set preview size
         // defaults to highest resolution available
-        Camera.Size optimalPreviewSize = getBestPreviewSize(type);
+        Camera.Size optimalPreviewSize = getBestPreviewSize(type, Integer.MAX_VALUE, Integer.MAX_VALUE);
         int width = optimalPreviewSize.width;
         int height = optimalPreviewSize.height;
 
         parameters.setPreviewSize(width, height);
-
-        Camera.Size optimalPictureSize = getBestPictureSize(type);
-
-        parameters.setPictureSize(optimalPictureSize.width, optimalPictureSize.height);
-
         try {
             camera.setParameters(parameters);
         } catch (Exception e) {

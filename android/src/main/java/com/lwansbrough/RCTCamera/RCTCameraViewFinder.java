@@ -65,6 +65,15 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
         }).start();
     }
 
+    public void setCaptureQuality(String captureQuality) {
+        RCTCamera.getInstance().setCaptureQuality(_cameraType, captureQuality);
+    }
+
+    public void setPreferredAspect(int preferredAspect) {
+        RCTCamera.getInstance().setPreferredAspect(_cameraType, preferredAspect);
+    }
+
+
     public void setTorchMode(int torchMode) {
         RCTCamera.getInstance().setTorchMode(_cameraType, torchMode);
     }
@@ -98,8 +107,10 @@ class RCTCameraViewFinder extends TextureView implements TextureView.SurfaceText
                 }
                 // set picture size
                 // defaults to max available size
-                Camera.Size optimalPictureSize = RCTCamera.getInstance().getBestPictureSize(_cameraType);
+                Camera.Size optimalPictureSize = RCTCamera.getInstance().getBestPictureSize(_cameraType, Integer.MAX_VALUE, Integer.MAX_VALUE);
                 parameters.setPictureSize(optimalPictureSize.width, optimalPictureSize.height);
+                //        Camera.Size optimalPictureSize = RCTCamera.getInstance().getBestPictureSize(_cameraType);
+                //        parameters.setPictureSize(optimalPictureSize.width, optimalPictureSize.height);
 
                 _camera.setParameters(parameters);
                 _camera.setPreviewTexture(_surfaceTexture);

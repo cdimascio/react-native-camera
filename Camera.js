@@ -107,7 +107,7 @@ export default class Camera extends Component {
 
   static defaultProps = {
     aspect: CameraManager.Aspect.fill,
-    preferredAspect: CameraManager.PreferredAspect.default,
+    preferredAspect: CameraManager.PreferredAspect.fourByThree,
     type: CameraManager.Type.back,
     orientation: CameraManager.Orientation.auto,
     captureAudio: true,

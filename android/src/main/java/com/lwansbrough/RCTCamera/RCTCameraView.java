@@ -20,7 +20,7 @@ public class RCTCameraView extends ViewGroup {
     private String _captureQuality = "high";
     private int _torchMode = -1;
     private int _flashMode = -1;
-    private int _preferredAspect = RCTCameraModule.RCT_PREFERRED_ASPECT_DEFAULT;
+    private int _preferredAspect = RCTCameraModule.RCT_PREFERRED_ASPECT_43;
 
     public RCTCameraView(Context context) {
         super(context);

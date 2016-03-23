@@ -18,7 +18,7 @@ public class RCTCamera {
     private final Map<Number, Camera> _cameras;
     private int _orientation = -1;
     private int _actualDeviceOrientation = 0;
-    private int _preferredAspect = RCTCameraModule.RCT_PREFERRED_ASPECT_DEFAULT;
+    private int _preferredAspect = RCTCameraModule.RCT_PREFERRED_ASPECT_43;
 
     public static RCTCamera getInstance() {
         return ourInstance;

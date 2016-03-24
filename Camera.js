@@ -3,6 +3,7 @@ import React, {
   NativeAppEventEmitter,
   NativeModules,
   PropTypes,
+  Platform,
   StyleSheet,
   requireNativeComponent,
   View,
@@ -107,7 +108,7 @@ export default class Camera extends Component {
 
   static defaultProps = {
     aspect: CameraManager.Aspect.fill,
-    preferredAspect: CameraManager.PreferredAspect.fourByThree,
+    preferredAspect: Platform.OS === 'android' ? CameraManager.PreferredAspect.fourByThree : null,
     type: CameraManager.Type.back,
     orientation: CameraManager.Orientation.auto,
     captureAudio: true,

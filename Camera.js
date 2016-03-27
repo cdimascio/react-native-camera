@@ -2,6 +2,7 @@ import React, {
   Component,
   NativeAppEventEmitter,
   NativeModules,
+  Platform,
   PropTypes,
   Platform,
   StyleSheet,

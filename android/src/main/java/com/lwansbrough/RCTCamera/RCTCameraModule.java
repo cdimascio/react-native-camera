@@ -22,7 +22,11 @@ import com.facebook.react.bridge.*;
 import javax.annotation.Nullable;
 import java.io.*;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.List;
 
 public class RCTCameraModule extends ReactContextBaseJavaModule {
     private static final String TAG = "RCTCameraModule";
@@ -262,13 +266,14 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
     }
 
 
-    @ReactMethod
+   @ReactMethod
     public void hasFlash(ReadableMap options, final Promise promise) {
         Camera camera = RCTCamera.getInstance().acquireCameraInstance(options.getInt("type"));
         if (null == camera) {
             promise.reject("No camera found.");
         }
-        promise.resolve(!camera.getParameters().getSupportedFlashModes().isEmpty());
+        List<String> flashModes = camera.getParameters().getSupportedFlashModes();
+        promise.resolve(null != flashModes && !flashModes.isEmpty());
     }
 
 

@@ -4,7 +4,6 @@ import React, {
   NativeModules,
   Platform,
   PropTypes,
-  Platform,
   StyleSheet,
   requireNativeComponent,
   View,

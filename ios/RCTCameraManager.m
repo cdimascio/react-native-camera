@@ -165,10 +165,10 @@ RCT_EXPORT_METHOD(checkDeviceAuthorizationStatus:(RCTPromiseResolveBlock)resolve
       resolve(@(granted));
     }
     else {
-      mediaType = AVMediaTypeAudio;
-      [AVCaptureDevice requestAccessForMediaType:mediaType completionHandler:^(BOOL granted) {
+//      mediaType = AVMediaTypeAudio;
+//      [AVCaptureDevice requestAccessForMediaType:mediaType completionHandler:^(BOOL granted) {
         resolve(@(granted));
-      }];
+//      }];
     }
   }];
 }

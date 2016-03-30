@@ -5,14 +5,12 @@
 package com.lwansbrough.RCTCamera;
 
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Base64;
@@ -210,6 +208,8 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
                             bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getWidth());
                         }
 
+                        createMediaDirIfMissing();
+
                         String url = MediaStore.Images.Media.insertImage(
                                 _reactContext.getContentResolver(),
                                 bitmap, options.getString("title"),
@@ -258,6 +258,23 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
                 }
             }
         });
+    }
+
+    public static void createMediaDirIfMissing() {
+        File sdcard = Environment.getExternalStorageDirectory();
+        if (sdcard == null) {
+            return;
+        }
+
+        File dcim = new File(sdcard, "DCIM");
+        if (dcim == null) {
+            return;
+        }
+
+        File camera = new File(dcim, "Camera");
+        if (!camera.exists()) {
+            camera.mkdir();
+        }
     }
 
     @ReactMethod

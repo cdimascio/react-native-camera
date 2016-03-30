@@ -286,6 +286,7 @@ public class RCTCamera {
         if (flashModes != null && flashModes.contains(value)) {
             parameters.setFlashMode(value);
             camera.setParameters(parameters);
+            _cameraParameters.put(cameraType, parameters);
         }
     }
 

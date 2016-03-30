@@ -16,6 +16,7 @@ public class RCTCamera {
     private final HashMap<Integer, CameraInfoWrapper> _cameraInfos;
     private final HashMap<Integer, Integer> _cameraTypeToIndex;
     private final Map<Number, Camera> _cameras;
+    private final Map<Number, Camera.Parameters> _cameraParameters;
     private int _orientation = -1;
     private int _actualDeviceOrientation = 0;
     private int _preferredAspect = RCTCameraModule.RCT_PREFERRED_ASPECT_43;
@@ -29,6 +30,11 @@ public class RCTCamera {
             try {
                 Camera camera = Camera.open(_cameraTypeToIndex.get(type));
                 _cameras.put(type, camera);
+                // Set up camera with any pre-existing parameters
+                Camera.Parameters parameters = _cameraParameters.get(type);
+                if (null != parameters) {
+                    camera.setParameters(parameters);
+                }
                 adjustPreviewLayout(type);
             } catch (Exception e) {
                 System.console().printf("acquireCameraInstance: %s", e.getLocalizedMessage());
@@ -39,6 +45,7 @@ public class RCTCamera {
 
     public void releaseCameraInstance(int type) {
         if (null != _cameras.get(type)) {
+            _cameraParameters.put(type, _cameras.get(type).getParameters()); // Save params
             _cameras.get(type).release();
             _cameras.remove(type);
         }
@@ -256,7 +263,8 @@ public class RCTCamera {
     }
 
     public void setFlashMode(int cameraType, int flashMode) {
-        Camera camera = _cameras.get(cameraType);
+//        Camera camera = _cameras.get(cameraType);
+        Camera camera = acquireCameraInstance(cameraType);
         if (null == camera) {
             return;
         }
@@ -332,6 +340,7 @@ public class RCTCamera {
         _cameras = new HashMap<>();
         _cameraInfos = new HashMap<>();
         _cameraTypeToIndex = new HashMap<>();
+        _cameraParameters = new HashMap<>();
 
         // map camera types to camera indexes and collect cameras properties
         for (int i = 0; i < Camera.getNumberOfCameras(); i++) {

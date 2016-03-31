@@ -4,10 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
-import com.facebook.react.bridge.Promise;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -21,13 +19,14 @@ public class RCTCameraImageUtil {
 
     /**
      * Saves an image to Environment.DIRECTORY_PICTURES in the external storage public
-     * directory. If context is not null, it will broadcast the event.
+     * directory.
      * @param bitmap
      * @param context
+     * @return image path
      */
-    public static void saveImage(Bitmap bitmap, final Context context, final Promise promise) {
+    public static String saveImage(Bitmap bitmap, final Context context) throws IOException {
 
-        saveImageHelper(new ImageFileCreator() {
+        return saveImageHelper(new ImageFileCreator() {
             @Override
             public File create() throws IOException {
                 File dir = Environment.getExternalStoragePublicDirectory(
@@ -44,38 +43,21 @@ public class RCTCameraImageUtil {
                 return true;
             }
 
-        }, bitmap, context, promise);
+        }, bitmap, context);
     }
 
 
-    private static void saveImageHelper(final ImageFileCreator fileCreator, Bitmap bitmap, final Context context, final Promise promise) {
-
-        new AsyncTask<Bitmap, Void, Boolean>() {
-
-            @Override
-            protected Boolean doInBackground(Bitmap... bitmaps) {
-                Bitmap bitmap = bitmaps[0];
-
-                try {
-                    File imageFile = fileCreator.create();
-                    FileOutputStream stream = new FileOutputStream(imageFile);
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-                    stream.flush();
-                    stream.close();
-                    Log.i(TAG, String.format("Saved bitmap to '%s'", imageFile.getAbsolutePath()));
-                    if (fileCreator.shouldSaveToGallery() && context != null) {
-                        addImageToGallery(imageFile.getAbsolutePath(), context);
-                    }
-                    promise.resolve(imageFile.toURI().toString());
-                    return true;
-                } catch (Exception e) {
-                    Log.e(TAG, "Error saving bitmap to file", e);
-                    e.printStackTrace();
-                    promise.reject(e.getMessage(), e);
-                    return false;
-                }
-            }
-        }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, bitmap);
+    private static String saveImageHelper(final ImageFileCreator fileCreator, Bitmap bitmap, final Context context) throws IOException {
+        File imageFile = fileCreator.create();
+        FileOutputStream stream = new FileOutputStream(imageFile);
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+        stream.flush();
+        stream.close();
+        Log.i(TAG, String.format("Saved bitmap to '%s'", imageFile.getAbsolutePath()));
+        if (fileCreator.shouldSaveToGallery() && context != null) {
+            addImageToGallery(imageFile.getAbsolutePath(), context);
+        }
+        return imageFile.toURI().toString();
     }
 
     private static String generateUniqueFileName() {

@@ -210,7 +210,11 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
 
                         createMediaDirIfMissing();
 
-                        RCTCameraImageUtil.saveImage(bitmap, _reactContext, promise);
+                        try {
+                            promise.resolve(RCTCameraImageUtil.saveImage(bitmap, _reactContext));
+                        } catch (IOException e) {
+                            promise.reject("Error creating media file.",e);
+                        }
 
 //                        String url = MediaStore.Images.Media.insertImage(
 //                                _reactContext.getContentResolver(),
@@ -296,20 +300,20 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
     }
 
 
-    private Uri getRealPathFromUri(Context context, Uri contentUri) {
-        Cursor cursor = null;
-        try {
-            String[] proj = { MediaStore.Images.Media.DATA };
-            cursor = context.getContentResolver().query(contentUri, proj, null, null, null);
-            int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-            cursor.moveToFirst();
-            return Uri.fromFile(new File(cursor.getString(column_index)));
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-        }
-    }
+//    private Uri getRealPathFromUri(Context context, Uri contentUri) {
+//        Cursor cursor = null;
+//        try {
+//            String[] proj = { MediaStore.Images.Media.DATA };
+//            cursor = context.getContentResolver().query(contentUri, proj, null, null, null);
+//            int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+//            cursor.moveToFirst();
+//            return Uri.fromFile(new File(cursor.getString(column_index)));
+//        } finally {
+//            if (cursor != null) {
+//                cursor.close();
+//            }
+//        }
+//    }
 
     private File getOutputMediaFile(int type) {
         File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(

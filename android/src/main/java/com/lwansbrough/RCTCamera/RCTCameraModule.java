@@ -300,6 +300,17 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
         promise.resolve(null != flashModes && !flashModes.isEmpty());
     }
 
+    @ReactMethod
+    public ReadableArray getSupportedCameras() {
+        RCTCamera camera = RCTCamera.getInstance();
+        WritableArray result = Arguments.createArray();
+        for (int perspective : camera.getSupportedCameras()) {
+            result.pushInt(perspective);
+        }
+        System.out.println("supported camera" + result + " "+ result.size());
+        return result;
+    }
+
 
 //    private Uri getRealPathFromUri(Context context, Uri contentUri) {
 //        Cursor cursor = null;

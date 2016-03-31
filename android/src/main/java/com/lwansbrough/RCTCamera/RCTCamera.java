@@ -6,9 +6,7 @@ package com.lwansbrough.RCTCamera;
 
 import android.hardware.Camera;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class RCTCamera {
 
@@ -49,6 +47,17 @@ public class RCTCamera {
             _cameras.get(type).release();
             _cameras.remove(type);
         }
+    }
+
+    public List<Integer> getSupportedCameras() {
+        if (null == _cameras || _cameras.size() == 0) {
+            return Collections.emptyList();
+        }
+        List<Integer> supportedCameras = new ArrayList<>();
+        for (Number id : _cameras.keySet()) {
+            supportedCameras.add(id.intValue());
+        }
+        return supportedCameras;
     }
 
     public int getPreviewWidth(int type) {

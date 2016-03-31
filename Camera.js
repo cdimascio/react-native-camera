@@ -202,6 +202,10 @@ export default class Camera extends Component {
     }
     return CameraManager.hasFlash();
   }
+
+  getSupportedCameras() {
+    return CameraManager.getSupportedCameras();
+  }
 }
 
 const RCTCamera = requireNativeComponent('RCTCamera', Camera);

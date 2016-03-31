@@ -210,13 +210,15 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
 
                         createMediaDirIfMissing();
 
-                        String url = MediaStore.Images.Media.insertImage(
-                                _reactContext.getContentResolver(),
-                                bitmap, options.getString("title"),
-                                options.getString("description"));
+                        RCTCameraImageUtil.saveImage(bitmap, _reactContext, promise);
 
-                        Uri newUri = getRealPathFromUri(_reactContext, Uri.parse(url));
-                        promise.resolve(newUri.toString());
+//                        String url = MediaStore.Images.Media.insertImage(
+//                                _reactContext.getContentResolver(),
+//                                bitmap, options.getString("title"),
+//                                options.getString("description"));
+//
+//                        Uri newUri = getRealPathFromUri(_reactContext, Uri.parse(url));
+//                        promise.resolve(newUri.toString());
                         break;
                     case RCT_CAMERA_CAPTURE_TARGET_DISK:
                         File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);

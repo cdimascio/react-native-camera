@@ -50,11 +50,11 @@ public class RCTCamera {
     }
 
     public List<Integer> getSupportedCameras() {
-        if (null == _cameras || _cameras.size() == 0) {
+        if (null == _cameraTypeToIndex || _cameraTypeToIndex.size() == 0) {
             return Collections.emptyList();
         }
         List<Integer> supportedCameras = new ArrayList<>();
-        for (Number id : _cameras.keySet()) {
+        for (Number id : _cameraTypeToIndex.keySet()) {
             supportedCameras.add(id.intValue());
         }
         return supportedCameras;

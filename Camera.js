@@ -50,6 +50,7 @@ export default class Camera extends Component {
   static constants = {
     Aspect: CameraManager.Aspect,
     PreferredAspect: CameraManager.PreferredAspect,
+    SupportedCameraTypes: CameraManager.SupportedCameraTypes,
     BarCodeType: CameraManager.BarCodeType,
     Type: CameraManager.Type,
     CaptureMode: CameraManager.CaptureMode,

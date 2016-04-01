@@ -4,27 +4,23 @@
 
 package com.lwansbrough.RCTCamera;
 
-import android.content.Context;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Environment;
-import android.provider.MediaStore;
 import android.util.Base64;
 import android.util.Log;
 import com.facebook.react.bridge.*;
 
 import javax.annotation.Nullable;
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.List;
+import java.util.*;
 
 public class RCTCameraModule extends ReactContextBaseJavaModule {
     private static final String TAG = "RCTCameraModule";
@@ -76,6 +72,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
                 put("Aspect", getAspectConstants());
                 put("PreferredAspect", getPreferredAspectConstants());
                 put("Type", getTypeConstants());
+                put("SupportedCameraTypes", getSupportedCameraTypesConstants());
                 put("CaptureQuality", getCaptureQualityConstants());
                 put("CaptureMode", getCaptureModeConstants());
                 put("CaptureTarget", getCaptureTargetConstants());
@@ -111,6 +108,11 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
                         put("back", RCT_CAMERA_TYPE_BACK);
                     }
                 });
+            }
+
+            private List<Integer> getSupportedCameraTypesConstants() {
+                RCTCamera camera = RCTCamera.getInstance();
+                return Collections.unmodifiableList(camera.getSupportedCameras());
             }
 
             private Map<String, Object> getCaptureQualityConstants() {
@@ -216,13 +218,6 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
                             promise.reject("Error creating media file.",e);
                         }
 
-//                        String url = MediaStore.Images.Media.insertImage(
-//                                _reactContext.getContentResolver(),
-//                                bitmap, options.getString("title"),
-//                                options.getString("description"));
-//
-//                        Uri newUri = getRealPathFromUri(_reactContext, Uri.parse(url));
-//                        promise.resolve(newUri.toString());
                         break;
                     case RCT_CAMERA_CAPTURE_TARGET_DISK:
                         File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
@@ -299,33 +294,6 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
         List<String> flashModes = camera.getParameters().getSupportedFlashModes();
         promise.resolve(null != flashModes && !flashModes.isEmpty());
     }
-
-    @ReactMethod
-    public ReadableArray getSupportedCameras() {
-        RCTCamera camera = RCTCamera.getInstance();
-        WritableArray result = Arguments.createArray();
-        for (int perspective : camera.getSupportedCameras()) {
-            result.pushInt(perspective);
-        }
-        System.out.println("supported camera" + result + " "+ result.size());
-        return result;
-    }
-
-
-//    private Uri getRealPathFromUri(Context context, Uri contentUri) {
-//        Cursor cursor = null;
-//        try {
-//            String[] proj = { MediaStore.Images.Media.DATA };
-//            cursor = context.getContentResolver().query(contentUri, proj, null, null, null);
-//            int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-//            cursor.moveToFirst();
-//            return Uri.fromFile(new File(cursor.getString(column_index)));
-//        } finally {
-//            if (cursor != null) {
-//                cursor.close();
-//            }
-//        }
-//    }
 
     private File getOutputMediaFile(int type) {
         File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(

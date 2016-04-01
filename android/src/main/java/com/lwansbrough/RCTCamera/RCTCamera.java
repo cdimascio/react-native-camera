@@ -272,7 +272,6 @@ public class RCTCamera {
     }
 
     public void setFlashMode(int cameraType, int flashMode) {
-//        Camera camera = _cameras.get(cameraType);
         Camera camera = acquireCameraInstance(cameraType);
         if (null == camera) {
             return;

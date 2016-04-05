@@ -192,6 +192,7 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
             public void onPictureTaken(byte[] data, Camera camera) {
                 camera.stopPreview();
                 camera.startPreview();
+
                 switch (options.getInt("target")) {
                     case RCT_CAMERA_CAPTURE_TARGET_MEMORY:
                         String encoded = Base64.encodeToString(data, Base64.DEFAULT);
@@ -202,12 +203,24 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
                         Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length, bitmapOptions);
 
                         if (bitmap.getWidth() > bitmap.getHeight()) {
-                            // TODO Hack to ensure image maintains portrait orientation - fix me properly
                             Matrix matrix = new Matrix();
-                            matrix.postRotate(90);
+                            // TODO Hack to ensure image maintains portrait orientation - fix me properly
+                            if (RCT_CAMERA_TYPE_FRONT == options.getInt("type")) {
+                                matrix.postRotate(270);
+                            } else {
+                                matrix.postRotate(90);
+                            }
+
                             bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getHeight(), bitmap.getHeight(), matrix, true);
                         } else {
                             bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getWidth());
+                        }
+
+                        if (RCT_CAMERA_TYPE_FRONT == options.getInt("type")) {
+                            // mirror image
+                            Matrix matrix = new Matrix();
+                            matrix.preScale(-1.0f, 1.0f);
+                            bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getWidth(), matrix, true);
                         }
 
                         createMediaDirIfMissing();

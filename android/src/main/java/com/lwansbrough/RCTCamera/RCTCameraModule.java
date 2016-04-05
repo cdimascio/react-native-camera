@@ -216,12 +216,12 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
                             bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getWidth());
                         }
 
-                        if (RCT_CAMERA_TYPE_FRONT == options.getInt("type")) {
-                            // mirror image
-                            Matrix matrix = new Matrix();
-                            matrix.preScale(-1.0f, 1.0f);
-                            bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getWidth(), matrix, true);
-                        }
+//                        if (RCT_CAMERA_TYPE_FRONT == options.getInt("type")) {
+//                            // mirror image
+//                            Matrix matrix = new Matrix();
+//                            matrix.preScale(-1.0f, 1.0f);
+//                            bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getWidth(), matrix, true);
+//                        }
 
                         createMediaDirIfMissing();
 

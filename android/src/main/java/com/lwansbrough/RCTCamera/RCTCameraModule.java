@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.hardware.Camera;
+import android.media.MediaActionSound;
 import android.net.Uri;
 import android.os.Environment;
 import android.util.Base64;
@@ -187,6 +188,10 @@ public class RCTCameraModule extends ReactContextBaseJavaModule {
             return;
         }
         RCTCamera.getInstance().setCaptureQuality(options.getInt("type"), options.getString("quality"));
+
+        MediaActionSound sound = new MediaActionSound();
+        sound.play(MediaActionSound.SHUTTER_CLICK);
+
         camera.takePicture(null, null, new Camera.PictureCallback() {
             @Override
             public void onPictureTaken(byte[] data, Camera camera) {
